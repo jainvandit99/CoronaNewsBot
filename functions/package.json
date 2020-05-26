@@ -1,7 +1,7 @@
 {
   "name": "functions",
   "description": "Cloud Functions for Firebase",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "Vandit Jain",
   "scripts": {
     "lint": "eslint .",
@@ -10,9 +10,9 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions:dialogflowFirebaseFulfillment",
     "logs": "firebase functions:log",
-    "commitPatch": "func() { npm version patch && git add . && git commit -m \"PATCH: $1\"; }; func",
-    "commitFeature": "func() { npm version minor && git add . && git commit -m \"FEATURE: $1\"; }; func",
-    "commitRelease": "func() { npm version major && git add . && git commit -m \"RELEASE: $1\"; }; func",
+    "commitPatch": "func() { npm version patch && git add ../. && git commit -m \"PATCH: $1\"; }; func",
+    "commitFeature": "func() { npm version minor && git add ../. && git commit -m \"FEATURE: $1\"; }; func",
+    "commitRelease": "func() { npm version major && git add ../. && git commit -m \"RELEASE: $1\"; }; func",
     "pushChanges": "git push origin master"
   },
   "engines": {
