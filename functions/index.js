@@ -16,8 +16,35 @@ const app = dialogflow({
 
 const helperFunctions = require('./functions')
 
-app.intent('Default Welcome Intent', (conv) => {
+app.intent('Default Welcome Intent', async(conv) => {
     conv.ask("Hey, ask me number of cases or deaths in some district")
+    try{
+        let districtData = await helperFunctions.getAllDistricts()
+        conv.data.districtData = districtData
+        var areas = []
+        for(var i=0; i<districtData.states.length; i++){
+            areas.push(districtData.states[i])
+            for(var j=0; j<districtData.districts[districtData.states[i]].length; j++){
+                areas.push(districtData.districts[districtData.states[i]][j])
+            }
+        }
+        console.log(areas)
+        let entities = Array.from(areas).map(area => {
+            return {
+              value: area,
+              synonyms: [area]
+            }
+        })
+        console.log(entities)
+        await conv.sessionEntities.add({
+            name: 'district',
+            entities: entities
+          });
+        await conv.sessionEntities.send();
+    }catch(error){
+        console.error(error)
+        conv.ask("Some error has occured, try again later")
+    }
 })
 
 app.intent('Default Fallback Intent', (conv) => {
@@ -33,9 +60,6 @@ app.intent('totalCountIntent', async (conv,{scenario,district,date,isNew}) => {
             date: date,
             isNew: isNew
         })
-        let districtData = await helperFunctions.getAllDistricts()
-        conv.data.districtData = districtData
-        console.log(districtData)
         conv.ask(result)
     }catch (error) {
         console.error(error)
