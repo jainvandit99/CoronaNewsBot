@@ -5,8 +5,10 @@ const Endpoints = {
     "DISTRICT_DAILY": "https://api.covid19india.org/districts_daily.json",
     "ZONES": "https://api.covid19india.org/zones.json"
 }
-async function getConvForCases(parameters){
 
+var districtObj;
+async function getConvForCases(parameters,districtData){
+     districtObj = districtData;
     return `Hmmmm: ${parameters.scenario} ${parameters.district} ${parameters.date} ${parameters.isNew}`
 }
 
@@ -27,6 +29,29 @@ async function getAllDistricts(){
         }
     }
     return districtData
+}
+
+async function getConvForState(parameters){
+
+}
+
+async function getConvForDistrict(parameters){
+
+}
+
+async function getConvForDeltaForState(parameters){
+
+}
+
+async function getConvForDeltaForDistrict(parameters){
+
+}
+
+async function isState(state){
+    if(districtObj.states.includes(state)){
+        return true
+    }
+    return false
 }
 
 exports.getConvForCases = getConvForCases;
