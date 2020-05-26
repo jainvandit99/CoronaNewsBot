@@ -18,7 +18,12 @@ const {
 
 
 app.intent('Default Welcome Intent', (conv) => {
-    conv.ask("Hey Ask Me Stuff About Corona")
+    conv.ask("Hey ask me number of cases or deaths in some district")
+})
+
+app.intent('Default Fallback Intent', (conv) => {
+    conv.ask("I'm Sorry, I don't know how to do that yet!")
+    conv.ask("You can ask me number of cases or deaths in each district")
 })
 
 
