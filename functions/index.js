@@ -10,12 +10,11 @@ const {
     BasicCard
   } = require('actions-on-google');
 
-  const fetch = require("node-fetch")
-
-  const app = dialogflow({
+const app = dialogflow({
     debug: true
 }).use(sessionEntitiesHelper());
 
+const helperFunctions = require('./functions')
 
 app.intent('Default Welcome Intent', (conv) => {
     conv.ask("Hey ask me number of cases or deaths in some district")
@@ -26,7 +25,13 @@ app.intent('Default Fallback Intent', (conv) => {
     conv.ask("You can ask me number of cases or deaths in each district")
 })
 
+app.intent('totalCountIntent', async (conv,{scenario,district,date,isNew}) => {
+    conv.ask(`${scenario} ${district} ${date} ${isNew}`)
+})
 
-
+app.catch((conv, error) => {
+    console.error(error);
+    conv.ask('I encountered a glitch. Can you say that again?');
+});
 
 exports.dialogflowFirebaseFulfillment = functions.https.onRequest(app);
