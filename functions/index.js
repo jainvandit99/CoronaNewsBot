@@ -17,7 +17,7 @@ const app = dialogflow({
 const helperFunctions = require('./functions')
 
 app.intent('Default Welcome Intent', (conv) => {
-    conv.ask("Hey ask me number of cases or deaths in some district")
+    conv.ask("Hey, ask me number of cases or deaths in some district")
 })
 
 app.intent('Default Fallback Intent', (conv) => {
@@ -26,7 +26,21 @@ app.intent('Default Fallback Intent', (conv) => {
 })
 
 app.intent('totalCountIntent', async (conv,{scenario,district,date,isNew}) => {
-    conv.ask(`${scenario} ${district} ${date} ${isNew}`)
+    try{
+        let result = await helperFunctions.getConvForCases({
+            scenario: scenario,
+            district: district,
+            date: date,
+            isNew: isNew
+        })
+        let districtData = await helperFunctions.getAllDistricts()
+        conv.data.districtData = districtData
+        console.log(districtData)
+        conv.ask(result)
+    }catch (error) {
+        console.error(error)
+        conv.ask("Some error has occured, try again later")
+    }
 })
 
 app.catch((conv, error) => {
