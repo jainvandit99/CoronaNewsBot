@@ -52,14 +52,15 @@ app.intent('Default Fallback Intent', (conv) => {
     conv.ask("You can ask me number of cases or deaths in each district")
 })
 
-app.intent('totalCountIntent', async (conv,{scenario,district,date,isNew}) => {
+app.intent('totalCountIntent', async (conv,{scenario,deathorcase,district,date,isNew}) => {
     try{
         let result = await helperFunctions.getConvForCases({
             scenario: scenario,
             district: district,
             date: date,
-            isNew: isNew
-        })
+            isNew: isNew,
+            deathorcase: deathorcase
+        },conv.data.districtData)
         conv.ask(result)
     }catch (error) {
         console.error(error)
