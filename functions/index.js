@@ -39,6 +39,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
                     areas.push(districtData.districts[districtData.states[i]][j])
                 }
             }
+            areas.push("India")
             console.log(areas)
             let entities = Array.from(areas).map(area => {
                 return {

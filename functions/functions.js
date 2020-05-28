@@ -6,11 +6,20 @@ const Endpoints = {
     "ZONES": "https://api.covid19india.org/zones.json",
     "NATIONAL_DATA":"https://api.covid19india.org/data.json"
 }
-
 var districtObj;
+const monthShortNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+];
 async function getConvForCases(parameters,districtData){
      districtObj = districtData;
-     if(isState(parameters.district)){
+     if(parameters.district === "" || parameters.district === "India"){
+        try{
+            return await getCovForIndia(parameters)
+        }catch (error){
+            console.error(error);
+        }
+     }
+     else if(isState(parameters.district)){
          console.log("HERE-1")
         if(parameters.isNew === ""){
             try{
@@ -30,6 +39,58 @@ async function getConvForCases(parameters,districtData){
         }
      }
     return `Hmmmm: ${parameters.scenario} ${parameters.district} ${parameters.date} ${parameters.isNew}`
+}
+
+async function getCovForIndia(parameters){
+    var date = parameters.date
+    if(date === ""){
+        date = new Date().toISOString()
+    }
+    let dateObj = new Date(date)
+    var dateString = dateObj.getDate() + " " + monthShortNames[dateObj.getMonth()];
+    let data = await (await fetch(Endpoints.NATIONAL_DATA,{
+        method: 'GET'
+    })).json()
+    console.log(`dateString: ${dateString}`)
+    console.log(`data: ${data}`)
+    var i = 0;
+    var dayData = data.cases_time_series.filter((singleDayData) => {
+        return singleDayData.date.trim() === dateString
+    })
+    if(dayData.length === 0){
+        dateString = (dateObj.getDate() - 1) + " " + monthShortNames[dateObj.getMonth()];
+        dayData = data.cases_time_series.filter((singleDayData) => {
+            return singleDayData.date.trim() === dateString
+        })
+    }
+    console.log(`dayData: ${dayData}`)
+    if(parameters.isNew === ""){
+        if(parameters.deathorcase === "Death"){
+            return `There were ${dayData[0].totaldeceased} deceased in India on ${dateString}`
+        }else {
+            if(parameters.scenario === "" || parameters.scenario === "total"){
+                return `There were ${dayData[0].totalconfirmed} cases in India on ${dateString}`
+            }else if(parameters.scenario === "recovered"){
+                return `There were ${dayData[0].totalrecovered} recovered cases in India on ${dateString}`
+            }else {
+                let active = Number(dayData[0].totalconfirmed) - Number(dayData[0].totalrecovered) - Number(dayData[0].totaldeceased)
+                return `There were ${active} active cases in India on ${dateString}`
+            }
+        }
+    }else{
+        if(parameters.deathorcase === "Death"){
+            return `There were ${dayData[0].dailydeceased} new deceased cases in India on ${dateString}`
+        }else {
+            if(parameters.scenario === "" || parameters.scenario === "total"){
+                return `There were ${dayData[0].dailyconfirmed} new cases in India on ${dateString}`
+            }else if(parameters.scenario === "recovered"){
+                return `There were ${dayData[0].dailyrecovered} new recovered cases in India on ${dateString}`
+            }else {
+                let active = Number(dayData[0].dailyconfirmed) - Number(dayData[0].dailyrecovered) - Number(dayData[0].dailydeceased)
+                return `There were ${active} new active cases in India on ${dateString}`
+            }
+        }
+    }
 }
 
 async function getAllDistricts(){
