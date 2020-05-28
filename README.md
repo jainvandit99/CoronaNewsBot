@@ -3,7 +3,7 @@
 This chat-bot built with Dialogflow, is compatible with Telegram and Google Assistant. It will soon support Whatsapp as well! 
 
 ![version](https://img.shields.io/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/jainvandit99/CoronaNewsBot/master/functions/package.json&label=version&query=$.version&color=brightgreen)
-![Platform](https://img.shields.io/badge/platform-Google%20Assistant%20|%20Telegram%20|%20Whatsapp-blue.svg)
+![Platform](https://img.shields.io/badge/platform-Google%20Assistant%20|%20Telegram%20|%20WhatsApp-blue.svg)
 ![dialogfloq-version](https://img.shields.io/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/jainvandit99/CoronaNewsBot/master/functions/package.json&label=dialogflow&query=$.dependencies.dialogflow&color=green)
 [![license](https://img.shields.io/github/license/jainvandit99/CoronaNewsBot)](LICENSE)
 
