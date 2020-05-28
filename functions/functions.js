@@ -23,6 +23,7 @@ async function getConvForCases(parameters,districtData){
 }
 
 async function getAllDistricts(){
+    console.log("Logged Get ALl Districts")
     let data = await (await fetch(Endpoints.STATE_DISTRICT_WISE,{
         method: 'GET'
     })).json()
@@ -38,6 +39,7 @@ async function getAllDistricts(){
             districtData.districts[state].push(data[i].districtData[j]["district"])
         }
     }
+    console.log('district data: ' + districtData)
     return districtData
 }
 
