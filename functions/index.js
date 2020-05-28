@@ -92,7 +92,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         return helperFunctions.getAllDistricts().then((districtData) => {
             agent.setContext({
                 name: 'global_context',
-                lifespan: 300,
+                lifespan: 99,
                 parameters: {
                     districtData: districtData
                 }
