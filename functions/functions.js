@@ -11,9 +11,19 @@ var districtObj;
 async function getConvForCases(parameters,districtData){
      districtObj = districtData;
      if(isState(parameters.district)){
+         console.log("HERE-1")
         if(parameters.isNew === ""){
             try{
                 return await getCountForState(parameters)
+            }catch (error){
+                console.log(error)
+            }
+        }
+     }else{
+        console.log("HERE-2")
+        if(parameters.isNew === ""){
+            try{
+                return await getCountForDistrict(parameters)
             }catch (error){
                 console.log(error)
             }
@@ -43,7 +53,7 @@ async function getAllDistricts(){
     return districtData
 }
 
-async function isState(state){
+function isState(state){
     if(districtObj.states.includes(state)){
         console.log("true")
         return true
@@ -88,6 +98,61 @@ async function getCountForState(parameters){
         }
     }
     return "0"
+}
+
+async function getCountForDistrict(parameters){
+    var today = new Date().toISOString().substring(0,10)
+    console.log("GET COUNT FOR DISTRICT CALLED")
+    if(parameters.date === "" || parameters.date.substring(0,10) === today){
+        try{
+            return await getCountForDistrictToday(parameters);
+        }catch (error){
+            console.log(console.error());
+        }
+    }
+    return "0"
+}
+
+async function getCountForDistrictToday(parameters){
+    try{
+        let data = await( await fetch(Endpoints.STATE_DISTRICT_WISE,{
+            method: 'GET'
+        })).json();
+        let stateData = await data.filter((statedata) => {
+            return statedata.state === getState(parameters.district)
+        })
+        let districtData = await stateData[0].districtData.filter((district) => {
+            return district.district === parameters.district
+        })
+        console.log(`data: ${data}`)
+        console.log(`stateData: ${stateData}`)
+        console.log(`districtData: ${districtData}`);
+        if(parameters.deathorcase === "Death"){
+            return `There are ${districtData[0].deceased} deceased in ${parameters.district}`
+        }else {
+            if(parameters.scenario === "" || parameters.scenario === "total"){
+                return `There are ${districtData[0].confirmed} cases in ${parameters.district}`
+            }else if(parameters.scenario === "recovered"){
+                return `There are ${districtData[0].recovered} recovered cases in ${parameters.district}`
+            }else {
+                return `There are ${districtData[0].active} active cases in ${parameters.district}`
+            }
+        }
+    }catch (error){
+        console.log(error);
+    }
+    return "0"
+}
+
+function getState(district){
+    console.log('GET STATE')
+    for (var state in districtObj.districts){
+        if(districtObj.districts[state].includes(district)){
+            console.log(`STATE: ${state}`)
+            return state;
+        }
+    }
+    return ""
 }
 
 exports.getConvForCases = getConvForCases;
