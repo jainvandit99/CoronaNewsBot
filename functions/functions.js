@@ -42,6 +42,12 @@ async function getConvForCases(parameters,districtData){
             }catch (error){
                 console.log(error)
             }
+        }else{
+            try{
+                return await getConvForDistrictDelta(parameters)
+            }catch (error){
+                console.log(error)
+            }
         }
      }
     return `Hmmmm: ${parameters.scenario} ${parameters.district} ${parameters.date} ${parameters.isNew}`
@@ -274,7 +280,35 @@ async function getConvForDistrictDelta(parameters){
 }
 
 async function getConvForDistrictDeltaToday(parameters){
-
+    try{
+        let data = await( await fetch(Endpoints.STATE_DISTRICT_WISE,{
+            method: 'GET'
+        })).json();
+        let stateData = await data.filter((statedata) => {
+            return statedata.state === getState(parameters.district)
+        })
+        let districtData = await stateData[0].districtData.filter((district) => {
+            return district.district === parameters.district
+        })
+        console.log(`data: ${data}`)
+        console.log(`stateData: ${stateData}`)
+        console.log(`districtData: ${districtData}`);
+        if(parameters.deathorcase === "Death"){
+            return `There were ${districtData[0].delta.deceased} new deceased in ${parameters.district}`
+        }else {
+            if(parameters.scenario === "" || parameters.scenario === "total"){
+                return `There were ${districtData[0].delta.confirmed} new confirmed cases in ${parameters.district}`
+            }else if(parameters.scenario === "recovered"){
+                return `There were ${districtData[0].delta.recovered} new recovered cases in ${parameters.district}`
+            }else {
+                let active = Number(districtData[0].delta.confirmed) - Number(districtData[0].delta.deceased) - Number(districtData[0].delta.recovered)
+                return `There were ${active} new active cases in ${parameters.district}`
+            }
+        }
+    }catch (error){
+        console.log(error);
+    }
+    return "0"
 }
 
 async function getConvForStateDeltaToday(parameters){

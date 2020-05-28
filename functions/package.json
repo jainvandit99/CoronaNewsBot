@@ -1,7 +1,7 @@
 {
   "name": "functions",
   "description": "Cloud Functions for Firebase",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "author": "Vandit Jain",
   "scripts": {
     "lint": "eslint .",
