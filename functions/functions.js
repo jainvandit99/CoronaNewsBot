@@ -27,6 +27,12 @@ async function getConvForCases(parameters,districtData){
             }catch (error){
                 console.log(error)
             }
+        }else{
+            try{
+                return await getConvForStateDelta(parameters)
+            }catch (error){
+                console.log(error)
+            }
         }
      }else{
         console.log("HERE-2")
@@ -53,44 +59,78 @@ async function getCovForIndia(parameters){
     })).json()
     console.log(`dateString: ${dateString}`)
     console.log(`data: ${data}`)
-    var i = 0;
-    var dayData = data.cases_time_series.filter((singleDayData) => {
-        return singleDayData.date.trim() === dateString
-    })
-    if(dayData.length === 0){
-        dateString = (dateObj.getDate() - 1) + " " + monthShortNames[dateObj.getMonth()];
-        dayData = data.cases_time_series.filter((singleDayData) => {
-            return singleDayData.date.trim() === dateString
+    var today = new Date().toISOString().substring(0,10)
+    if(parameters.date === "" || parameters.date.substring(0,10) === today){
+        var dayDatas = data.statewise.filter((singleDayData) => {
+            return singleDayData.state === "Total"
         })
-    }
-    console.log(`dayData: ${dayData}`)
-    if(parameters.isNew === ""){
-        if(parameters.deathorcase === "Death"){
-            return `There were ${dayData[0].totaldeceased} deceased in India on ${dateString}`
-        }else {
-            if(parameters.scenario === "" || parameters.scenario === "total"){
-                return `There were ${dayData[0].totalconfirmed} cases in India on ${dateString}`
-            }else if(parameters.scenario === "recovered"){
-                return `There were ${dayData[0].totalrecovered} recovered cases in India on ${dateString}`
+        if(parameters.isNew === ""){
+            if(parameters.deathorcase === "Death"){
+                return `There are ${dayDatas[0].deaths} total deceased in India, today`
             }else {
-                let active = Number(dayData[0].totalconfirmed) - Number(dayData[0].totalrecovered) - Number(dayData[0].totaldeceased)
-                return `There were ${active} active cases in India on ${dateString}`
+                if(parameters.scenario === "" || parameters.scenario === "total"){
+                    return `There are ${dayDatas[0].confirmed} confirmed total cases in India, today`
+                }else if(parameters.scenario === "recovered"){
+                    return `There are ${dayDatas[0].recovered} total recovered cases in India, today`
+                }else {
+                    return `There are ${dayDatas[0].active} total active cases in India, today`
+                }
+            }
+        }else{
+            if(parameters.deathorcase === "Death"){
+                return `There are ${dayDatas[0].deltadeaths} new deceased cases in India, today`
+            }else {
+                if(parameters.scenario === "" || parameters.scenario === "total"){
+                    return `There are ${dayDatas[0].deltaconfirmed} new cases in India, today`
+                }else if(parameters.scenario === "recovered"){
+                    return `There are ${dayDatas[0].deltarecovered} new recovered cases in India, today`
+                }else {
+                    let active = Number(dayDatas[0].deltaconfirmed) - Number(dayDatas[0].deltarecovered) - Number(dayDatas[0].deltadeaths)
+                    return `There are ${active} new active cases in India, today`
+                }
             }
         }
     }else{
-        if(parameters.deathorcase === "Death"){
-            return `There were ${dayData[0].dailydeceased} new deceased cases in India on ${dateString}`
-        }else {
-            if(parameters.scenario === "" || parameters.scenario === "total"){
-                return `There were ${dayData[0].dailyconfirmed} new cases in India on ${dateString}`
-            }else if(parameters.scenario === "recovered"){
-                return `There were ${dayData[0].dailyrecovered} new recovered cases in India on ${dateString}`
+        var i = 0;
+        var dayData = data.cases_time_series.filter((singleDayData) => {
+            return singleDayData.date.trim() === dateString
+        })
+        if(dayData.length === 0){
+            dateString = (dateObj.getDate() - 1) + " " + monthShortNames[dateObj.getMonth()];
+            dayData = data.cases_time_series.filter((singleDayData) => {
+                return singleDayData.date.trim() === dateString
+            })
+        }
+        console.log(`dayData: ${dayData}`)
+        if(parameters.isNew === ""){
+            if(parameters.deathorcase === "Death"){
+                return `There were ${dayData[0].totaldeceased} total deceased in India on ${dateString}`
             }else {
-                let active = Number(dayData[0].dailyconfirmed) - Number(dayData[0].dailyrecovered) - Number(dayData[0].dailydeceased)
-                return `There were ${active} new active cases in India on ${dateString}`
+                if(parameters.scenario === "" || parameters.scenario === "total"){
+                    return `There were ${dayData[0].totalconfirmed} total confirmed cases in India on ${dateString}`
+                }else if(parameters.scenario === "recovered"){
+                    return `There were ${dayData[0].totalrecovered} total recovered cases in India on ${dateString}`
+                }else {
+                    let active = Number(dayData[0].totalconfirmed) - Number(dayData[0].totalrecovered) - Number(dayData[0].totaldeceased)
+                    return `There were ${active} total active cases in India on ${dateString}`
+                }
+            }
+        }else{
+            if(parameters.deathorcase === "Death"){
+                return `There were ${dayData[0].dailydeceased} new deceased cases in India on ${dateString}`
+            }else {
+                if(parameters.scenario === "" || parameters.scenario === "total"){
+                    return `There were ${dayData[0].dailyconfirmed} new cases in India on ${dateString}`
+                }else if(parameters.scenario === "recovered"){
+                    return `There were ${dayData[0].dailyrecovered} new recovered cases in India on ${dateString}`
+                }else {
+                    let active = Number(dayData[0].dailyconfirmed) - Number(dayData[0].dailyrecovered) - Number(dayData[0].dailydeceased)
+                    return `There were ${active} new active cases in India on ${dateString}`
+                }
             }
         }
     }
+    
 }
 
 async function getAllDistricts(){
@@ -133,14 +173,14 @@ async function getCountForStateToday(parameters){
         })
         console.log(stateData);
         if(parameters.deathorcase === "Death"){
-            return `There are ${stateData[0].deaths} deceased in ${parameters.district}`
+            return `There were ${stateData[0].deaths} total deceased in ${parameters.district}`
         }else {
             if(parameters.scenario === "" || parameters.scenario === "total"){
-                return `There are ${stateData[0].confirmed} cases in ${parameters.district}`
+                return `There were ${stateData[0].confirmed} total cases in ${parameters.district}`
             }else if(parameters.scenario === "recovered"){
-                return `There are ${stateData[0].recovered} recovered cases in ${parameters.district}`
+                return `There were ${stateData[0].recovered} total recovered cases in ${parameters.district}`
             }else {
-                return `There are ${stateData[0].active} active cases in ${parameters.district}`
+                return `There were ${stateData[0].active} total active cases in ${parameters.district}`
             }
         }
     }catch (error){
@@ -189,14 +229,73 @@ async function getCountForDistrictToday(parameters){
         console.log(`stateData: ${stateData}`)
         console.log(`districtData: ${districtData}`);
         if(parameters.deathorcase === "Death"){
-            return `There are ${districtData[0].deceased} deceased in ${parameters.district}`
+            return `There were ${districtData[0].deceased} total deceased in ${parameters.district}`
         }else {
             if(parameters.scenario === "" || parameters.scenario === "total"){
-                return `There are ${districtData[0].confirmed} cases in ${parameters.district}`
+                return `There were ${districtData[0].confirmed} total confirmed cases in ${parameters.district}`
             }else if(parameters.scenario === "recovered"){
-                return `There are ${districtData[0].recovered} recovered cases in ${parameters.district}`
+                return `There were ${districtData[0].recovered} total recovered cases in ${parameters.district}`
             }else {
-                return `There are ${districtData[0].active} active cases in ${parameters.district}`
+                return `There were ${districtData[0].active} total active cases in ${parameters.district}`
+            }
+        }
+    }catch (error){
+        console.log(error);
+    }
+    return "0"
+}
+
+async function getConvForStateDelta(parameters){
+    var today = new Date().toISOString().substring(0,10)
+    if(parameters.date === "" || parameters.date.substring(0,10) === today){
+        try {
+            return await getConvForStateDeltaToday(parameters);
+        }catch (error){
+            console.error(error)
+            return "0"
+        }
+    }
+    return "0"
+    
+}
+
+async function getConvForDistrictDelta(parameters){
+    var today = new Date().toISOString().substring(0,10)
+    if(parameters.date === "" || parameters.date.substring(0,10) === today){
+        try {
+            return await getConvForDistrictDeltaToday(parameters);
+        }catch (error){
+            console.error(error)
+            return "0"
+        }
+    }
+    return "0"
+    
+}
+
+async function getConvForDistrictDeltaToday(parameters){
+
+}
+
+async function getConvForStateDeltaToday(parameters){
+    try{
+        let data = await( await fetch(Endpoints.NATIONAL_DATA,{
+            method: 'GET'
+        })).json();
+        let stateData = await data.statewise.filter((statedata) => {
+            return statedata.state === parameters.district
+        })
+        console.log(stateData);
+        if(parameters.deathorcase === "Death"){
+            return `There are ${stateData[0].deltadeaths} new deceased in ${parameters.district}`
+        }else {
+            if(parameters.scenario === "" || parameters.scenario === "total"){
+                return `There are ${stateData[0].deltaconfirmed} new cases in ${parameters.district}`
+            }else if(parameters.scenario === "recovered"){
+                return `There are ${stateData[0].deltarecovered} new recovered cases in ${parameters.district}`
+            }else {
+                let active = Number(stateData[0].deltaconfirmed) - Number(stateData[0].deltadeaths) - Number(stateData[0].deltarecovered)
+                return `There are ${active} new active cases in ${parameters.district}`
             }
         }
     }catch (error){
